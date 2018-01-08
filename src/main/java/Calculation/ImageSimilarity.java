@@ -32,6 +32,10 @@ public class ImageSimilarity {
     private double GLRLMWeight;
     private double HOGWeight;
     private double LBPWeight;
+    private double CM3x3Weight;
+    private double CN3x3Weight;
+    private double GLRLM3x3Weight;
+    private double LBP3x3Weight;
 
     private double calculateImagePropertiesScore(Image image) {
         //double score = 0.0;
@@ -52,6 +56,14 @@ public class ImageSimilarity {
         return Math.min(1.0, score);
     }
 
+    /**
+     * Calculation of the similarity of two GPS positions with the  Haversine formula
+     * @param startLat
+     * @param endLat
+     * @param startLong
+     * @param endLong
+     * @return
+     */
     private double calculateGPSPositionSimilarity(double startLat, double endLat, double startLong, double endLong) {
         double dLat  = Math.toRadians((endLat - startLat));
         double dLong = Math.toRadians((endLong - startLong));
@@ -75,9 +87,16 @@ public class ImageSimilarity {
         double glrlmSimilarity = 1.0 / (1 + this.calculateManhattanDistance(visualDescriptors1.getGrayLevelRunLengthMatrix(), visualDescriptors2.getGrayLevelRunLengthMatrix()));
         double hogSimilarity = 1.0 / (1 + this.calculateManhattanDistance(visualDescriptors1.getHistogramOfOrientedGradients(), visualDescriptors2.getHistogramOfOrientedGradients()));
         double lbpSimilarity = 1.0 / (1 + this.calculateManhattanDistance(visualDescriptors1.getLocallyBinaryPatternsOnGS(), visualDescriptors2.getLocallyBinaryPatternsOnGS()));
+        double cm3x3Similarity = 1.0 / (1 + this.calculateManhattanDistance(visualDescriptors1.getColorMomentsOnHSV3x3(), visualDescriptors2.getColorMomentsOnHSV3x3()));
+        double cn3x3Similarity = 1.0 / (1 + this.calculateManhattanDistance(visualDescriptors1.getColorNamingHistogram3x3(), visualDescriptors2.getColorNamingHistogram3x3()));
+        double glrlm3x3Similarity = 1.0 / (1 + this.calculateManhattanDistance(visualDescriptors1.getGrayLevelRunLengthMatrix3x3(), visualDescriptors2.getGrayLevelRunLengthMatrix3x3()));
+        double lbp3x3Similarity = 1.0 / (1 + this.calculateManhattanDistance(visualDescriptors1.getLocallyBinaryPatternsOnGS3x3(), visualDescriptors2.getLocallyBinaryPatternsOnGS3x3()));
+
 
         double similarity = CMWeight*cmSimilarity + CNWeight*cnSimilarity + CSDWeight*csdSimilarity
-                + GLRLMWeight*glrlmSimilarity + HOGWeight*hogSimilarity + LBPWeight*lbpSimilarity;
+                + GLRLMWeight*glrlmSimilarity + HOGWeight*hogSimilarity + LBPWeight*lbpSimilarity
+                + CM3x3Weight*cm3x3Similarity + CN3x3Weight*cn3x3Similarity
+                + GLRLM3x3Weight*glrlm3x3Similarity + LBP3x3Weight*lbp3x3Similarity;
         return Math.min(1.0, similarity);
     }
 
@@ -266,8 +285,13 @@ public class ImageSimilarity {
         GLRLMWeight = Double.parseDouble(PropConfig.accessPropertyFile("GLRLMWeight"));
         HOGWeight = Double.parseDouble(PropConfig.accessPropertyFile("HOGWeight"));
         LBPWeight = Double.parseDouble(PropConfig.accessPropertyFile("LBPWeight"));
+        CM3x3Weight = Double.parseDouble(PropConfig.accessPropertyFile("CM3x3Weight"));
+        CN3x3Weight = Double.parseDouble(PropConfig.accessPropertyFile("CN3x3Weight"));
+        GLRLM3x3Weight = Double.parseDouble(PropConfig.accessPropertyFile("GLRLM3x3Weight"));
+        LBP3x3Weight = Double.parseDouble(PropConfig.accessPropertyFile("LBP3x3Weight"));
 
-        sum = CMWeight + CNWeight + CSDWeight + GLRLMWeight + HOGWeight + LBPWeight;
+        sum = CMWeight + CNWeight + CSDWeight + GLRLMWeight + HOGWeight + LBPWeight
+                +CM3x3Weight+CN3x3Weight+GLRLM3x3Weight+LBP3x3Weight;
 
         if (sum == 0) {
             sum = 1;
@@ -279,6 +303,10 @@ public class ImageSimilarity {
         GLRLMWeight = GLRLMWeight / sum;
         HOGWeight = HOGWeight / sum;
         LBPWeight = LBPWeight / sum;
+        CM3x3Weight = CM3x3Weight / sum;
+        CN3x3Weight = CN3x3Weight / sum;
+        GLRLM3x3Weight = GLRLM3x3Weight / sum;
+        LBP3x3Weight = LBP3x3Weight / sum;
     }
 
 

@@ -91,17 +91,29 @@ public class VisualDescriptors {
     public void setColorMomentsOnHSV3x3(List<Double> colorMomentsOnHSV3x3) {
         this.colorMomentsOnHSV3x3 = colorMomentsOnHSV3x3;
     }
+    public List<Double> getColorMomentsOnHSV3x3() {
+        return this.colorMomentsOnHSV3x3;
+    }
 
     public void setColorNamingHistogram3x3(List<Double> colorNamingHistogram3x3) {
         this.colorNamingHistogram3x3 = colorNamingHistogram3x3;
+    }
+    public List<Double> getColorNamingHistogram3x3() {
+        return this.colorNamingHistogram3x3;
     }
 
     public void setGrayLevelRunLengthMatrix3x3(List<Double> grayLevelRunLengthMatrix3x3) {
         this.grayLevelRunLengthMatrix3x3 = grayLevelRunLengthMatrix3x3;
     }
+    public List<Double> getGrayLevelRunLengthMatrix3x3() {
+        return this.grayLevelRunLengthMatrix3x3;
+    }
 
   public void setLocallyBinaryPatternsOnGS3x3(List<Double> locallyBinaryPatternsOnGS3x3) {
         this.locallyBinaryPatternsOnGS3x3 = locallyBinaryPatternsOnGS3x3;
+    }
+    public List<Double> getLocallyBinaryPatternsOnGS3x3() {
+        return this.locallyBinaryPatternsOnGS3x3;
     }
 
 }
