@@ -7,6 +7,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
+
+import Data.PropConfig;
 import Images.Location;
 /**
  * Created by rsume on 05.01.2018.
@@ -50,8 +52,8 @@ public class ImageCalculator {
         System.out.println(dateFormat.format(date) + ", Images were ranked successfully.");
 
         DataWriter writer = new DataWriter();
-        File outputfile = new File("C:/Users/rsume/Downloads/div-2014/run.csv");
-        writer.writeOutput(outputfile, reader.getLocations(), NUMBER_OF_OUTPUT_IMAGES, "RUN_ID");
+        File outputFile = new File(PropConfig.accessPropertyFile("outputFile"));
+        writer.writeOutput(outputFile, reader.getLocations(), Integer.parseInt(PropConfig.accessPropertyFile("OutputImages")), "TestRun");
 
         date = new Date();
         System.out.println(dateFormat.format(date) + ", Application finished successfully.");

@@ -40,7 +40,7 @@ public class DataReader {
         return locations;
     }
 
-    private void readLocations(boolean testset) {
+    private void readLocations() {
         String filePath = PropConfig.accessPropertyFile("BasePath")+PropConfig.accessPropertyFile("LocationPath");
         File file = new File(filePath);
         try {
@@ -98,7 +98,7 @@ public class DataReader {
         }
     }
 
-    private void readLocationTextualFeatures(boolean testset) {
+    private void readLocationTextualFeatures() {
         String filePath = PropConfig.accessPropertyFile("BasePath")+PropConfig.accessPropertyFile("LocationTextualDescriptorPath");
         File file = new File(filePath);
 
@@ -137,7 +137,7 @@ public class DataReader {
         }
     }
 
-    private void readImageTextualFeatures(boolean testset) {
+    private void readImageTextualFeatures() {
         String filePath = PropConfig.accessPropertyFile("BasePath")+PropConfig.accessPropertyFile("ImageTextualDescriptorPath");
         File file = new File(filePath);
 
@@ -170,7 +170,7 @@ public class DataReader {
         }
     }
 
-    private void readImages(boolean testset) {
+    private void readImages() {
         String directoryPath = PropConfig.accessPropertyFile("BasePath")+PropConfig.accessPropertyFile("XMLPath");
         File directory = new File(directoryPath);
         File[] fileList = directory.listFiles();
@@ -224,12 +224,6 @@ public class DataReader {
                                 // tags
                                 try {
                                     image.setTags(element.getAttribute("tags"));
-                                } catch (Exception ex) {
-                                }
-
-                                // url
-                                try {
-                                    image.setUrl(element.getAttribute("url_b"));
                                 } catch (Exception ex) {
                                 }
                                 // username
@@ -299,7 +293,7 @@ public class DataReader {
         }
     }
 
-    private void readVisualDescriptors(boolean testset, boolean includeSpatialPyramidRepresentation) {
+    private void readVisualDescriptors() {
         String directoryPath = PropConfig.accessPropertyFile("BasePath")+PropConfig.accessPropertyFile("VisualDescriptorsPath");
         File directory = new File(directoryPath);
         File[] fileList = directory.listFiles();
@@ -351,24 +345,16 @@ public class DataReader {
                                         break;
 
                                     case "CM3x3":
-                                        if (includeSpatialPyramidRepresentation) {
                                             visualDescriptors.setColorMomentsOnHSV3x3(descriptorValues);
-                                        }
                                         break;
                                     case "CN3x3":
-                                        if (includeSpatialPyramidRepresentation) {
                                             visualDescriptors.setColorNamingHistogram3x3(descriptorValues);
-                                        }
                                         break;
                                     case "GLRLM3x3":
-                                        if (includeSpatialPyramidRepresentation) {
                                             visualDescriptors.setGrayLevelRunLengthMatrix3x3(descriptorValues);
-                                        }
                                         break;
                                     case "LBP3x3":
-                                        if (includeSpatialPyramidRepresentation) {
                                             visualDescriptors.setLocallyBinaryPatternsOnGS3x3(descriptorValues);
-                                        }
                                         break;
                                     default:
                                         break;
@@ -383,7 +369,7 @@ public class DataReader {
         }
     }
 
-    private void readWikiVisualDescriptors(boolean testset, boolean includeSpatialPyramidRepresentation) {
+    private void readWikiVisualDescriptors() {
         String directoryPath = PropConfig.accessPropertyFile("BasePath")+PropConfig.accessPropertyFile("WikiVisualDescriptorsPath");
         File directory = new File(directoryPath);
         File[] fileList = directory.listFiles();
@@ -454,24 +440,16 @@ public class DataReader {
                                         break;
 
                                     case "CM3x3":
-                                        if (includeSpatialPyramidRepresentation) {
                                             visualDescriptors.setColorMomentsOnHSV3x3(descriptorValues);
-                                        }
                                         break;
                                     case "CN3x3":
-                                        if (includeSpatialPyramidRepresentation) {
                                             visualDescriptors.setColorNamingHistogram3x3(descriptorValues);
-                                        }
                                         break;
                                     case "GLRLM3x3":
-                                        if (includeSpatialPyramidRepresentation) {
                                             visualDescriptors.setGrayLevelRunLengthMatrix3x3(descriptorValues);
-                                        }
                                         break;
                                     case "LBP3x3":
-                                        if (includeSpatialPyramidRepresentation) {
                                             visualDescriptors.setLocallyBinaryPatternsOnGS3x3(descriptorValues);
-                                        }
                                         break;
                                     default:
                                         break;
@@ -536,12 +514,12 @@ public class DataReader {
     }
 
     public void read(boolean testset) {
-        this.readLocationTextualFeatures(testset);
-        this.readLocations(testset);
-        this.readImageTextualFeatures(testset);
-        this.readImageTextualFeatures(testset);
-        this.readImages(testset);
-        this.readVisualDescriptors(testset, false);
-        this.readWikiVisualDescriptors(testset, false);
+        this.readLocationTextualFeatures();
+        this.readLocations();
+        this.readImageTextualFeatures();
+        this.readImageTextualFeatures();
+        this.readImages();
+        this.readVisualDescriptors();
+        this.readWikiVisualDescriptors();
     }
 }

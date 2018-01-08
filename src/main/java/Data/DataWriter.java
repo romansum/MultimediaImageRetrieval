@@ -26,7 +26,6 @@ public class DataWriter {
             // order locations according to their query_id (number)
             List<Location> orderedLocations = new ArrayList<>(locations.values());
             orderedLocations.sort(new Comparator<Location>() {
-
                 @Override
                 public int compare(Location location1, Location location2) {
                     return Integer.valueOf(location1.getNumber()).compareTo(Integer.valueOf(location2.getNumber()));

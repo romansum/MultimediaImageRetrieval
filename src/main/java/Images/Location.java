@@ -103,18 +103,6 @@ public class Location {
         return result;
     }
 
-    public void reinitRelevanceScores() {
-        for (Map.Entry<String, Image> imageEntry : this.getImages().entrySet()) {
-            imageEntry.getValue().setRelevanceScore(0);
-        }
-    }
-
-    public void reinitDiversityScores() {
-        for (Map.Entry<String, Image> imageEntry : this.getImages().entrySet()) {
-            imageEntry.getValue().setDiversityScore(0);
-        }
-    }
-
     public List<Image> getTopImages(int count) {
         List<Image> orderedImages = new ArrayList<>(this.getImages().values());
         orderedImages.sort(new Comparator<Image>() {

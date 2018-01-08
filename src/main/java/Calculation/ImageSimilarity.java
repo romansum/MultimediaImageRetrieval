@@ -10,6 +10,9 @@ public class ImageSimilarity {
 
     public ImageSimilarity() {
     }
+
+    private static final int EARTH_RADIUS = 6371; // Approx Earth radius in KM
+
     private double ImageGPSWeight;
     private double ImageRankWeight;
     private double ImageRelevanceWeight;
@@ -31,51 +34,55 @@ public class ImageSimilarity {
     private double LBPWeight;
 
     private double calculateImagePropertiesScore(Image image) {
-        double score = 0.0;
+        //double score = 0.0;
+        double numberOfViews = 0;
+        if (image.getNumberOfViews() > 0) {
+            numberOfViews = 1-1.0/image.getNumberOfViews();
+        }
+        //System.out.println("NUMBER OF VIEWS   " + image.getNumberOfViews());
+        //System.out.println("SCORE    "+numberOfViews);
+        //double numberOfViewsScore = (image.getNumberOfViews() > 0) ? (1.0 / image.getNumberOfViews()) : (0.0);
+        //double numberOfCommentsScore = (image.getNumberOfComments() > 0) ? (1.0 / image.getNumberOfComments()) : (0.0);
 
-        double numberOfViewsScore = (image.getNumberOfViews() > 0) ? (1.0 / image.getNumberOfViews()) : (0.0);
-        double numberOfCommentsScore = (image.getNumberOfComments() > 0) ? (1.0 / image.getNumberOfComments()) : (0.0);
-
-        score = (1.0 * numberOfViewsScore)
-                + (0.0 * numberOfCommentsScore);
+        double score = (0.1 * numberOfViews);
+        score = numberOfViews;
+        //score = 0;
+         //       + (0.0 * numberOfCommentsScore);
 
         return Math.min(1.0, score);
     }
 
-    private double calculateGPSPositionSimilarity(double latitude1, double latitude2, double longitude1, double longitude2) {
-        double similarity = 0.0;
-            double earthRadius = 6371000; // in meters
-            double latitudeDifference = Math.toRadians(latitude2 - latitude1);
-            double LongitudeDifference = Math.toRadians(longitude2 - longitude1);
-            double a = Math.sin(latitudeDifference / 2) * Math.sin(latitudeDifference / 2)
-                    + Math.cos(Math.toRadians(latitude1)) * Math.cos(Math.toRadians(latitude2))
-                    * Math.sin(LongitudeDifference / 2) * Math.sin(LongitudeDifference / 2);
-            double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-            double distance = earthRadius * c;
-            similarity = 1.0 / (1 + distance);
+    private double calculateGPSPositionSimilarity(double startLat, double endLat, double startLong, double endLong) {
+        double dLat  = Math.toRadians((endLat - startLat));
+        double dLong = Math.toRadians((endLong - startLong));
+
+        startLat = Math.toRadians(startLat);
+        endLat   = Math.toRadians(endLat);
+
+        double a = Math.pow(Math.sin(dLat / 2), 2) + Math.cos(startLat) * Math.cos(endLat) * Math.pow(Math.sin(dLong / 2), 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        double distance = EARTH_RADIUS * c;
+
+        double similarity = 1.0 / (1 + distance);
 
         return Math.min(1.0, similarity);
     }
 
-    private double calculateVisualSimilarity(VisualDescriptors visualDescriptors01, VisualDescriptors visualDescriptors02) {
-        double similarity = 0.0;
+    private double calculateVisualSimilarity(VisualDescriptors visualDescriptors1, VisualDescriptors visualDescriptors2) {
+        double cmSimilarity = 1.0 / (1 + this.calculateManhattanDistance(visualDescriptors1.getColorMomentsOnHSV(), visualDescriptors2.getColorMomentsOnHSV()));
+        double cnSimilarity = 1.0 / (1 + this.calculateManhattanDistance(visualDescriptors1.getColorNamingHistogram(), visualDescriptors2.getColorNamingHistogram()));
+        double csdSimilarity = 1.0 / (1 + this.calculateManhattanDistance(visualDescriptors1.getColorStructureDescriptor(), visualDescriptors2.getColorStructureDescriptor()));
+        double glrlmSimilarity = 1.0 / (1 + this.calculateManhattanDistance(visualDescriptors1.getGrayLevelRunLengthMatrix(), visualDescriptors2.getGrayLevelRunLengthMatrix()));
+        double hogSimilarity = 1.0 / (1 + this.calculateManhattanDistance(visualDescriptors1.getHistogramOfOrientedGradients(), visualDescriptors2.getHistogramOfOrientedGradients()));
+        double lbpSimilarity = 1.0 / (1 + this.calculateManhattanDistance(visualDescriptors1.getLocallyBinaryPatternsOnGS(), visualDescriptors2.getLocallyBinaryPatternsOnGS()));
 
-        double cmSimilarity = 1.0 / (1 + this.calculateManhattanDistance(visualDescriptors01.getColorMomentsOnHSV(), visualDescriptors02.getColorMomentsOnHSV()));
-        double cnSimilarity = 1.0 / (1 + this.calculateManhattanDistance(visualDescriptors01.getColorNamingHistogram(), visualDescriptors02.getColorNamingHistogram()));
-        double csdSimilarity = 1.0 / (1 + this.calculateManhattanDistance(visualDescriptors01.getColorStructureDescriptor(), visualDescriptors02.getColorStructureDescriptor()));
-        double glrlmSimilarity = 1.0 / (1 + this.calculateManhattanDistance(visualDescriptors01.getGrayLevelRunLengthMatrix(), visualDescriptors02.getGrayLevelRunLengthMatrix()));
-        double hogSimilarity = 1.0 / (1 + this.calculateManhattanDistance(visualDescriptors01.getHistogramOfOrientedGradients(), visualDescriptors02.getHistogramOfOrientedGradients()));
-        double lbpSimilarity = 1.0 / (1 + this.calculateManhattanDistance(visualDescriptors01.getLocallyBinaryPatternsOnGS(), visualDescriptors02.getLocallyBinaryPatternsOnGS()));
-
-        similarity = CMWeight*cmSimilarity + CNWeight*cnSimilarity + CSDWeight*csdSimilarity
+        double similarity = CMWeight*cmSimilarity + CNWeight*cnSimilarity + CSDWeight*csdSimilarity
                 + GLRLMWeight*glrlmSimilarity + HOGWeight*hogSimilarity + LBPWeight*lbpSimilarity;
         return Math.min(1.0, similarity);
     }
 
 
     private double calculateTextualSimilarity_Intersect(TermCollection textualDescriptors01, TermCollection textualDescriptors02) {
-        double similarity = 0.0;
-
         // get shared terms between the two images (intersect)
         Set<String> sharedTerms = new HashSet<>(textualDescriptors01.getTerms().keySet());
         sharedTerms.retainAll(textualDescriptors02.getTerms().keySet());
@@ -87,14 +94,12 @@ public class ImageSimilarity {
             tf_idfList01.add(textualDescriptors01.getTerms().get(term).getTF_IDF());
             tf_idfList02.add(textualDescriptors02.getTerms().get(term).getTF_IDF());
         }
-        similarity = 1.0 / (1 + this.calculateManhattanDistance(tf_idfList01,tf_idfList02));
-
+        //System.out.println(this.calculateManhattanDistance(tf_idfList01,tf_idfList02));
+        double similarity = (1-1.0 / (1 + this.calculateManhattanDistance(tf_idfList01,tf_idfList02)));
         return Math.min(1.0, similarity);
     }
 
     private double calculateTextualSimilarity_Union(TermCollection textualDescriptors01, TermCollection textualDescriptors02) {
-        double similarity = 0.0;
-
         // get all terms in the two images (union)
         Set<String> allTerms = new HashSet<>(textualDescriptors01.getTerms().keySet());
         allTerms.addAll(textualDescriptors02.getTerms().keySet());
@@ -118,13 +123,13 @@ public class ImageSimilarity {
             }
         }
 
-        similarity = this.calculateCosineSimilarity(tf_idfList01, tf_idfList02);
+        double similarity = this.calculateCosineSimilarity(tf_idfList01, tf_idfList02);
 
         return Math.min(1.0, similarity);
     }
 
 
-    public double calculateSimilarity(Image image01, Image image02) {
+    public double calculateSimilarityForDiversity(Image image01, Image image02) {
         double similarity = 0.0;
 
         double positionSimilarity = this.calculateGPSPositionSimilarity(image01.getLatitude(),image02.getLatitude(),image01.getLongitude(), image02.getLongitude());
@@ -138,20 +143,19 @@ public class ImageSimilarity {
         return Math.min(1.0, similarity);
     }
 
-    public double calculateSimilarity(Image image, WikiImage wikiImage) {
+    public double calculateSimilarityForDiversity(Image image, WikiImage wikiImage) {
         return this.calculateVisualSimilarity(image.getVisualDescriptors(), wikiImage.getVisualDescriptors());
     }
 
-    public double calculateSimilarity(Location location, Image image) {
-        double similarity = 0.0;
-
+    public double calculateSimilarityForRelevance(Location location, Image image) {
         double visualSimilarity = 0.0;
         for (Map.Entry<String, WikiImage> imageEntry : location.getWikiImages().entrySet()) {
-            double tempSimilarity = this.calculateSimilarity(image, imageEntry.getValue());
+            double tempSimilarity = this.calculateSimilarityForDiversity(image, imageEntry.getValue());
             if (tempSimilarity > visualSimilarity) {
                 visualSimilarity = tempSimilarity;
             }
         }
+
 
         double nameTitleSimilarity = this.calculateWordOverlapSimilarity(location.getName(), image.getTitle());
         double nameTagsSimilarity = this.calculateWordOverlapSimilarity(location.getName(), image.getTags());
@@ -160,10 +164,10 @@ public class ImageSimilarity {
         double positionSimilarity = this.calculateGPSPositionSimilarity(location.getLatitude(),image.getLatitude(),location.getLongitude(), image.getLongitude());
 
         double rankSimilarity = (image.getRank() > 0) ? (1.0 / image.getRank()) : 0.0;
+
         double imagePropertiesSimilarity = this.calculateImagePropertiesScore(image);
-        //double textualSimilarity = this.calculateTextualSimilarity_Intersect(location.getTextualDescriptors(), image.getTextualDescriptors());
         double textualSimilarity = this.calculateTextualSimilarity_Intersect(location.getTextualDescriptors(), image.getTextualDescriptors());
-        similarity = LocationNameWeight*nameSimilarity + LocationGPSWeight * positionSimilarity + LocationRankWeight*rankSimilarity
+        double similarity = LocationNameWeight*nameSimilarity + LocationGPSWeight * positionSimilarity + LocationRankWeight*rankSimilarity
                 +LocationPropertiesWeight*imagePropertiesSimilarity + LocationVisualDescriptorsWeight*visualSimilarity
                 + LocationTextualDescriptorsWeight*textualSimilarity;
         return Math.min(1.0, similarity);
@@ -202,8 +206,6 @@ public class ImageSimilarity {
         return distance;
     }
     public static double calculateWordOverlapSimilarity(String text01, String text02) {
-        double similarity = 0.0;
-
         String[] tokensArray01 = text01.split("\\W+");
         String[] tokensArray02 = text02.split("\\W+");
 
@@ -214,7 +216,7 @@ public class ImageSimilarity {
         tokensSet.addAll(tokensSet02);
 
         int commonTokens = (tokensSet01.size() + tokensSet02.size()) - tokensSet.size();
-        similarity = (double) commonTokens / (double) Math.min(tokensSet01.size(), tokensSet02.size());
+        double similarity = (double) commonTokens / (double) Math.min(tokensSet01.size(), tokensSet02.size());
 
         return similarity;
     }
@@ -278,4 +280,7 @@ public class ImageSimilarity {
         HOGWeight = HOGWeight / sum;
         LBPWeight = LBPWeight / sum;
     }
+
+
+
 }

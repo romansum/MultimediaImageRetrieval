@@ -22,7 +22,6 @@ public class Image {
     private String title;
     private String description;
     private String tags;
-    private String url;
     private String userId;
     private String username;
     private int rank;
@@ -68,10 +67,6 @@ public class Image {
 
     public void setTags(String tags) {
         this.tags = tags;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
     }
 
     public void setUsername(String username) {

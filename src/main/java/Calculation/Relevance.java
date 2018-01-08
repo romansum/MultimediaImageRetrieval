@@ -20,11 +20,9 @@ public class Relevance {
     }
 
     public void calculateRelevanceScores(Location location) {
-        location.reinitRelevanceScores();
-
         for (Map.Entry<String, Image> imageEntry : location.getImages().entrySet()) {
-            double x = this.imageSimilarity.calculateSimilarity(location, imageEntry.getValue());
-            imageEntry.getValue().setRelevanceScore(this.imageSimilarity.calculateSimilarity(location, imageEntry.getValue()));
+            double x = this.imageSimilarity.calculateSimilarityForRelevance(location, imageEntry.getValue());
+            imageEntry.getValue().setRelevanceScore(this.imageSimilarity.calculateSimilarityForRelevance(location, imageEntry.getValue()));
         }
     }
 }
