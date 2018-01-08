@@ -19,9 +19,10 @@ public class ImageCalculator {
     private static ImageSimilarity imageSimilarity;
     private static Relevance relevanceScorer;
     private static Diversity diversityScorer;
+    private static String readGroundTruths = "false";
 
     public static void main(String[] args) {
-
+        readGroundTruths =  PropConfig.accessPropertyFile("readGroundTruths");
         Date date;
         DateFormat dateFormat = new SimpleDateFormat("[yyyy/MM/dd HH:mm:ss]");
 
@@ -29,7 +30,7 @@ public class ImageCalculator {
         System.out.println(dateFormat.format(date) + ", Application started.");
 
         DataReader reader = new DataReader();
-        reader.read(false);
+        reader.read(readGroundTruths);
 
         date = new Date();
         System.out.println(dateFormat.format(date) + ", Data was read successfully.");
@@ -53,7 +54,7 @@ public class ImageCalculator {
 
         DataWriter writer = new DataWriter();
         File outputFile = new File(PropConfig.accessPropertyFile("outputFile"));
-        writer.writeOutput(outputFile, reader.getLocations(), Integer.parseInt(PropConfig.accessPropertyFile("OutputImages")), "TestRun");
+        writer.writeOutput(outputFile, reader.getLocations(), Integer.parseInt(PropConfig.accessPropertyFile("OutputImages")), "TestRun",readGroundTruths);
 
         date = new Date();
         System.out.println(dateFormat.format(date) + ", Application finished successfully.");

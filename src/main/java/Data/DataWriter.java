@@ -14,7 +14,7 @@ import Images.Location;
  */
 public class DataWriter {
 
-    public void writeOutput(File file, Map<String, Location> locations, int numberOfImagesToPrint, String runId) {
+    public void writeOutput(File file, Map<String, Location> locations, int numberOfImagesToPrint, String runId, String readGroundTruths) {
         try {
             // if file doesnt exists, then create it
             if (!file.exists()) {
@@ -31,7 +31,9 @@ public class DataWriter {
                     return Integer.valueOf(location1.getNumber()).compareTo(Integer.valueOf(location2.getNumber()));
                 }
             });
-            System.out.println("Precision10 --------- Precision50 --------- ClusterRecall10 --------- ClusterRecall50");
+            if(readGroundTruths.equals("true")) {
+                System.out.println("Precision10 --------- Precision50 --------- ClusterRecall10 --------- ClusterRecall50");
+            }
             double precision10 = 0;
             double precision50 = 0;
             double clusterRecall10 = 0;
@@ -41,10 +43,12 @@ public class DataWriter {
                 //System.out.println(location.getTitle()+ " "+ location.getNumber());
 
                 List<Image> orderedImages = location.getTopImages(numberOfImagesToPrint);
-                precision10 = precision10+ getPrecisionAt(10,orderedImages);
-                precision50 = precision10+ getPrecisionAt(50,orderedImages);
-                clusterRecall10 = clusterRecall10 + getClusterRecallAt(10,location.getClusters(),orderedImages);
-                clusterRecall50 = clusterRecall50 + getClusterRecallAt(50,location.getClusters(),orderedImages);
+                if(readGroundTruths.equals("true")) {
+                    precision10 = precision10 + getPrecisionAt(10, orderedImages);
+                    precision50 = precision10 + getPrecisionAt(50, orderedImages);
+                    clusterRecall10 = clusterRecall10 + getClusterRecallAt(10, location.getClusters(), orderedImages);
+                    clusterRecall50 = clusterRecall50 + getClusterRecallAt(50, location.getClusters(), orderedImages);
+                }
                 //System.out.println(getPrecisionAt(5,orderedImages));
                 for (int j = 0; j < orderedImages.size(); j++) {
                     Image image = orderedImages.get(j);
@@ -67,14 +71,15 @@ public class DataWriter {
                 }
                 //System.out.println();
             }
-            System.out.print(precision10/orderedLocations.size());
-            System.out.print("-------");
-            System.out.print(precision50/orderedLocations.size());
-            System.out.print("-------");
-            System.out.print(clusterRecall10/orderedLocations.size());
-            System.out.print("-------");
-            System.out.println(clusterRecall50/orderedLocations.size());
-
+            if(readGroundTruths.equals("true")) {
+                System.out.print(precision10 / orderedLocations.size());
+                System.out.print("-------");
+                System.out.print(precision50 / orderedLocations.size());
+                System.out.print("-------");
+                System.out.print(clusterRecall10 / orderedLocations.size());
+                System.out.print("-------");
+                System.out.println(clusterRecall50 / orderedLocations.size());
+            }
             writer.close();
         } catch (IOException ex) {
             Logger.getLogger(DataReader.class.getName()).log(Level.SEVERE, null, ex);

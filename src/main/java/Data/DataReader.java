@@ -40,7 +40,7 @@ public class DataReader {
         return locations;
     }
 
-    private void readLocations() {
+    private void readLocations(String readGroundTruth) {
         String filePath = PropConfig.accessPropertyFile("BasePath")+PropConfig.accessPropertyFile("LocationPath");
         File file = new File(filePath);
         try {
@@ -88,7 +88,9 @@ public class DataReader {
                     if (textualDescriptors != null) {
                         location.setTextualDescriptors(textualDescriptors);
                     }
-                    location.setClusters(loadGroundTruthClusters(PropConfig.accessPropertyFile("BasePath") + "gt/dGT/" + location.getTitle() + " dclusterGT.txt"));
+                    if(readGroundTruth.equals("true")) {
+                        location.setClusters(loadGroundTruthClusters(PropConfig.accessPropertyFile("BasePath") + "gt/dGT/" + location.getTitle() + " dclusterGT.txt"));
+                    }
                     this.locations.put(location.getTitle(), location);
 
                 }
@@ -170,7 +172,7 @@ public class DataReader {
         }
     }
 
-    private void readImages() {
+    private void readImages(String readGroundTruths) {
         String directoryPath = PropConfig.accessPropertyFile("BasePath")+PropConfig.accessPropertyFile("XMLPath");
         File directory = new File(directoryPath);
         File[] fileList = directory.listFiles();
@@ -180,9 +182,12 @@ public class DataReader {
                 String fileName = file.getName().replaceFirst("[.][^.]+$", "");
                 String locationTitle = fileName;
                 Location location = this.locations.get(locationTitle);
-                Hashtable<String, Integer> groundTruthRelevance = loadGroundTruthAllocation(PropConfig.accessPropertyFile("BasePath") + "gt/rGT/" + location.getTitle() + " rGT.txt");
-                Hashtable<String, Integer> groundTruthCluster = loadGroundTruthAllocation(PropConfig.accessPropertyFile("BasePath") + "gt/dGT/" + location.getTitle() + " dGT.txt");
-
+                Hashtable<String, Integer> groundTruthRelevance=null;
+                Hashtable<String, Integer> groundTruthCluster=null;
+                if(readGroundTruths.equals("true")) {
+                    groundTruthRelevance = loadGroundTruthAllocation(PropConfig.accessPropertyFile("BasePath") + "gt/rGT/" + location.getTitle() + " rGT.txt");
+                    groundTruthCluster = loadGroundTruthAllocation(PropConfig.accessPropertyFile("BasePath") + "gt/dGT/" + location.getTitle() + " dGT.txt");
+                }
                 if (location != null) {
                     try {
                         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
@@ -276,12 +281,13 @@ public class DataReader {
                                 if (textualDescriptors != null) {
                                     image.setTextualDescriptors(textualDescriptors);
                                 }
-                                if(groundTruthRelevance.get(image.getId()) != null)
-                                    image.setRelevant_GT(groundTruthRelevance.get(image.getId())==1);
+                                if(readGroundTruths.equals("true")) {
+                                    if (groundTruthRelevance.get(image.getId()) != null)
+                                        image.setRelevant_GT(groundTruthRelevance.get(image.getId()) == 1);
 
-                                if(groundTruthCluster.get(image.getId()) != null)
-                                    image.setClusterId_GT(groundTruthCluster.get(image.getId()));
-
+                                    if (groundTruthCluster.get(image.getId()) != null)
+                                        image.setClusterId_GT(groundTruthCluster.get(image.getId()));
+                                }
                                 location.getImages().put(image.getId(), image);
                             }
                         }
@@ -513,12 +519,12 @@ public class DataReader {
         return clusters;
     }
 
-    public void read(boolean testset) {
+    public void read(String readGroundTruths) {
         this.readLocationTextualFeatures();
-        this.readLocations();
+        this.readLocations(readGroundTruths);
         this.readImageTextualFeatures();
         this.readImageTextualFeatures();
-        this.readImages();
+        this.readImages(readGroundTruths);
         this.readVisualDescriptors();
         this.readWikiVisualDescriptors();
     }
