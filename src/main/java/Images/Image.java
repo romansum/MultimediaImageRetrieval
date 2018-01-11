@@ -1,6 +1,5 @@
 package Images;
 
-import java.util.Date;
 /**
  * Created by rsume on 05.01.2018.
  */
@@ -15,24 +14,20 @@ public class Image {
         this.relevanceScore = 0;
         this.diversityScore = 0;
         this.textualDescriptors = new TermCollection();
-        this.visualDescriptors = new VisualDescriptors();
+        this.visualContent = new VisualContent();
     }
 
     private String id;
     private String title;
     private String description;
     private String tags;
-    private String userId;
-    private String username;
     private int rank;
     private int numberOfComments;
     private int numberOfViews;
-    private int license;
-    private Date dateTaken;
     private double latitude;
     private double longitude;
     private TermCollection textualDescriptors;
-    private VisualDescriptors visualDescriptors;
+    private VisualContent visualContent;
 
     private Location location;
     private boolean relevant_GT;
@@ -69,10 +64,6 @@ public class Image {
         this.tags = tags;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
     public int getRank() {
         return rank;
     }
@@ -97,25 +88,20 @@ public class Image {
         this.numberOfViews = numberOfViews;
     }
 
-    public void setLicense(int license) {
-        this.license = license;
-    }
-
     public Double getLatitude() {
         return latitude;
     }
+
     public Double getLongitude() {
         return longitude;
     }
+
     public void setLatitude(double latitude) {
         this.latitude = latitude;
     }
+
     public void setLongitude(double longitude) {
         this.longitude = longitude;
-    }
-
-    public void setDateTaken(Date dateTaken) {
-        this.dateTaken = dateTaken;
     }
 
     public TermCollection getTextualDescriptors() {
@@ -126,8 +112,8 @@ public class Image {
         this.textualDescriptors = textualDescriptors;
     }
 
-    public VisualDescriptors getVisualDescriptors() {
-        return visualDescriptors;
+    public VisualContent getVisualContent() {
+        return visualContent;
     }
 
     public void setLocation(Location location) {
@@ -149,6 +135,7 @@ public class Image {
     public void setDiversityScore(double diversityScore) {
         this.diversityScore = diversityScore;
     }
+
     public boolean isRelevant_GT() {
         return relevant_GT;
     }

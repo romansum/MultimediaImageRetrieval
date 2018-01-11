@@ -10,19 +10,19 @@ import Images.Location;
 public class Relevance {
 
     public Relevance() {
-        this.imageSimilarity = new ImageSimilarity();
+        this.similarityCalculation = new SimilarityCalculation();
     }
 
-    private ImageSimilarity imageSimilarity;
+    private SimilarityCalculation similarityCalculation;
 
-    public void setImageSimilarity(ImageSimilarity imageSimilarity) {
-        this.imageSimilarity = imageSimilarity;
+    public void setSimilarityCalculation(SimilarityCalculation similarityCalculation) {
+        this.similarityCalculation = similarityCalculation;
     }
 
     public void calculateRelevanceScores(Location location) {
         for (Map.Entry<String, Image> imageEntry : location.getImages().entrySet()) {
-            double x = this.imageSimilarity.calculateSimilarityForRelevance(location, imageEntry.getValue());
-            imageEntry.getValue().setRelevanceScore(this.imageSimilarity.calculateSimilarityForRelevance(location, imageEntry.getValue()));
+            double x = this.similarityCalculation.calculateSimilarityForWikiImages(location, imageEntry.getValue());
+            imageEntry.getValue().setRelevanceScore(this.similarityCalculation.calculateSimilarityForWikiImages(location, imageEntry.getValue()));
         }
     }
 }

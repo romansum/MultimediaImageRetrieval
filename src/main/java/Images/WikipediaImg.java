@@ -2,15 +2,15 @@ package Images;
 /**
  * Created by rsume on 05.01.2018.
  */
-public class WikiImage {
+public class WikipediaImg {
 
-    public WikiImage() {
-        this.visualDescriptors = new VisualDescriptors();
+    public WikipediaImg() {
+        this.visualContent = new VisualContent();
     }
 
     private String id;
 
-    private VisualDescriptors visualDescriptors;
+    private VisualContent visualContent;
 
     private Location location;
 
@@ -22,8 +22,8 @@ public class WikiImage {
         this.id = id;
     }
 
-    public VisualDescriptors getVisualDescriptors() {
-        return visualDescriptors;
+    public VisualContent getVisualContent() {
+        return visualContent;
     }
 
     public void setLocation(Location location) {

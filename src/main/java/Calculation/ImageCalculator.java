@@ -1,8 +1,8 @@
 package Calculation;
 
 import java.io.File;
-import Data.DataReader;
-import Data.DataWriter;
+import Data.Input;
+import Data.Output;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -16,7 +16,7 @@ import Images.Location;
 public class ImageCalculator {
 
     private static final int NUMBER_OF_OUTPUT_IMAGES = 50;
-    private static ImageSimilarity imageSimilarity;
+    private static SimilarityCalculation similarityCalculation;
     private static Relevance relevanceScorer;
     private static Diversity diversityScorer;
     private static String readGroundTruths = "false";
@@ -29,20 +29,20 @@ public class ImageCalculator {
         date = new Date();
         System.out.println(dateFormat.format(date) + ", Application started.");
 
-        DataReader reader = new DataReader();
+        Input reader = new Input();
         reader.read(readGroundTruths);
 
         date = new Date();
         System.out.println(dateFormat.format(date) + ", Data was read successfully.");
 
-        imageSimilarity = new ImageSimilarity();
-        imageSimilarity.setWeights();
+        similarityCalculation = new SimilarityCalculation();
+        similarityCalculation.setWeights();
 
         relevanceScorer = new Relevance();
-        relevanceScorer.setImageSimilarity(imageSimilarity);
+        relevanceScorer.setSimilarityCalculation(similarityCalculation);
 
         diversityScorer = new Diversity();
-        diversityScorer.setImageSimilarity(imageSimilarity);
+        diversityScorer.setSimilarityCalculation(similarityCalculation);
 
         for (Map.Entry<String, Location> locationEntry : reader.getLocations().entrySet()) {
             relevanceScorer.calculateRelevanceScores(locationEntry.getValue());
@@ -52,7 +52,7 @@ public class ImageCalculator {
         date = new Date();
         System.out.println(dateFormat.format(date) + ", Images were ranked successfully.");
 
-        DataWriter writer = new DataWriter();
+        Output writer = new Output();
         File outputFile = new File(PropConfig.accessPropertyFile("outputFile"));
         writer.writeOutput(outputFile, reader.getLocations(), Integer.parseInt(PropConfig.accessPropertyFile("OutputImages")), "TestRun",readGroundTruths);
 
