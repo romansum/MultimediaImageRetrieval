@@ -13,7 +13,7 @@ public class Image {
         this.clusterId_GT = -1;
         this.relevanceScore = 0;
         this.diversityScore = 0;
-        this.textualDescriptors = new TermCollection();
+        this.termCollection = new TermCollection();
         this.visualContent = new VisualContent();
     }
 
@@ -26,10 +26,8 @@ public class Image {
     private int numberOfViews;
     private double latitude;
     private double longitude;
-    private TermCollection textualDescriptors;
+    private TermCollection termCollection;
     private VisualContent visualContent;
-
-    private Location location;
     private boolean relevant_GT;
     private int clusterId_GT;
 
@@ -104,20 +102,16 @@ public class Image {
         this.longitude = longitude;
     }
 
-    public TermCollection getTextualDescriptors() {
-        return textualDescriptors;
+    public TermCollection getTermCollection() {
+        return termCollection;
     }
 
-    public void setTextualDescriptors(TermCollection textualDescriptors) {
-        this.textualDescriptors = textualDescriptors;
+    public void setTermCollection(TermCollection termCollection) {
+        this.termCollection = termCollection;
     }
 
     public VisualContent getVisualContent() {
         return visualContent;
-    }
-
-    public void setLocation(Location location) {
-        this.location = location;
     }
 
     public double getRelevanceScore() {

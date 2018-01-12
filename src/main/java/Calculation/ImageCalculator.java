@@ -15,49 +15,37 @@ import Images.Location;
  */
 public class ImageCalculator {
 
-    private static final int NUMBER_OF_OUTPUT_IMAGES = 50;
     private static SimilarityCalculation similarityCalculation;
     private static Relevance relevanceScorer;
     private static Diversity diversityScorer;
+    //Variable which defines if existing ground truths should be used to calculate precision and cluster recall
     private static String readGroundTruths = "false";
 
+    /**
+     * Main class for the calculation of the relevant and distinct images for a location
+     * @param args
+     */
     public static void main(String[] args) {
         readGroundTruths =  PropConfig.accessPropertyFile("readGroundTruths");
-        Date date;
-        DateFormat dateFormat = new SimpleDateFormat("[yyyy/MM/dd HH:mm:ss]");
-
-        date = new Date();
-        System.out.println(dateFormat.format(date) + ", Application started.");
-
         Input reader = new Input();
         reader.read(readGroundTruths);
-
-        date = new Date();
-        System.out.println(dateFormat.format(date) + ", Data was read successfully.");
-
         similarityCalculation = new SimilarityCalculation();
+        //Set weights for the descriptors from the properties file
         similarityCalculation.setWeights();
-
         relevanceScorer = new Relevance();
         relevanceScorer.setSimilarityCalculation(similarityCalculation);
-
         diversityScorer = new Diversity();
         diversityScorer.setSimilarityCalculation(similarityCalculation);
-
+        //Calculate the relevance and diversity for each location
         for (Map.Entry<String, Location> locationEntry : reader.getLocations().entrySet()) {
             relevanceScorer.calculateRelevanceScores(locationEntry.getValue());
             diversityScorer.calculateDiversityScores(locationEntry.getValue());
         }
-
-        date = new Date();
-        System.out.println(dateFormat.format(date) + ", Images were ranked successfully.");
-
         Output writer = new Output();
+        //Write the resulting images in the result file
         File outputFile = new File(PropConfig.accessPropertyFile("outputFile"));
         writer.writeOutput(outputFile, reader.getLocations(), Integer.parseInt(PropConfig.accessPropertyFile("OutputImages")), "TestRun",readGroundTruths);
-
-        date = new Date();
-        System.out.println(dateFormat.format(date) + ", Application finished successfully.");
+        System.out.println("Application finished successfully.");
     }
 
 }

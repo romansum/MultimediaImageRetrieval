@@ -105,7 +105,7 @@ public class Location {
                 return diversityComparator;
             }
         });
-        return orderedImages;
+        return orderedImages.subList(0,count);
     }
 
 }

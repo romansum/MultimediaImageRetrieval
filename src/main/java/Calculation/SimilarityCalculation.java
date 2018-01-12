@@ -13,19 +13,24 @@ public class SimilarityCalculation {
 
     private static final int EARTH_RADIUS = 6371; // Approx Earth radius in KM
 
+    /**
+     * Weights for the images
+     */
     private double ImageGPSWeight;
-    private double ImageRankWeight;
     private double ImageRelevanceWeight;
     private double ImageVisualSimilarityWeight;
     private double ImageTextualSimilarityWeight;
-
-    private double LocationNameWeight;
+    /**
+     * Weights for the location descriptors and wikpedia images
+     */
     private double LocationGPSWeight;
     private double LocationRankWeight;
     private double LocationPropertiesWeight;
     private double LocationVisualSimilarityWeight;
     private double LocationTextualSimilarityWeight;
-
+    /**
+     * Weight for each single visual descriptor for the images and wikipedia images
+     */
     private double CMWeight;
     private double CNWeight;
     private double CSDWeight;
@@ -37,28 +42,28 @@ public class SimilarityCalculation {
     private double GLRLM3x3Weight;
     private double LBP3x3Weight;
 
+    /**
+     * Calculates the score for an image depending on the number of views and number of comments
+     * @param image image for which the score is calculated
+     * @return the score as double value
+     */
     private double calculateImagePropertiesScore(Image image) {
-        //double score = 0.0;
         double numberOfViews = 0;
         double numberOfComments = 0;
         if (image.getNumberOfViews() > 0) {
             numberOfViews = 1-1.0/image.getNumberOfViews();
         }
-        if (image.getNumberOfComments() > 0) {
-            numberOfComments = 1-1.0/image.getNumberOfViews();
-        }
-        double score = (numberOfViews+numberOfComments)/2;
-        score = numberOfViews;
+        double score = numberOfViews;
         return score;
     }
 
     /**
      * Calculation of the similarity of two GPS positions with the  Haversine formula
-     * @param startLat
-     * @param endLat
-     * @param startLong
-     * @param endLong
-     * @return
+     * @param startLat latitude of point A
+     * @param endLat latitude of point B
+     * @param startLong longitude of point A
+     * @param endLong longitude of point B
+     * @return distance between the two points
      */
     private double calculateGPSPositionSimilarity(double startLat, double endLat, double startLong, double endLong) {
         double dLat  = Math.toRadians((endLat - startLat));
@@ -72,193 +77,150 @@ public class SimilarityCalculation {
         double distance = EARTH_RADIUS * c;
 
         double similarity = 1.0 / (1 + distance);
-
-        return Math.min(1.0, similarity);
+        return similarity;
     }
 
+    /**
+     * Calculates distance between each visual feature
+     * @param visualContent1 first vector
+     * @param visualContent2 second vector
+     * @return similarity of vectors
+     */
     private double calculateVisualSimilarity(VisualContent visualContent1, VisualContent visualContent2) {
-        double cmSimilarity = 1.0 / (1 + this.calculateManhattanDistance(visualContent1.getColorMomentsOnHSV(), visualContent2.getColorMomentsOnHSV()));
-        double cnSimilarity = 1.0 / (1 + this.calculateManhattanDistance(visualContent1.getColorNamingHistogram(), visualContent2.getColorNamingHistogram()));
-        double csdSimilarity = 1.0 / (1 + this.calculateManhattanDistance(visualContent1.getColorStructureDescriptor(), visualContent2.getColorStructureDescriptor()));
-        double glrlmSimilarity = 1.0 / (1 + this.calculateManhattanDistance(visualContent1.getGrayLevelRunLengthMatrix(), visualContent2.getGrayLevelRunLengthMatrix()));
-        double hogSimilarity = 1.0 / (1 + this.calculateManhattanDistance(visualContent1.getHistogramOfOrientedGradients(), visualContent2.getHistogramOfOrientedGradients()));
-        double lbpSimilarity = 1.0 / (1 + this.calculateManhattanDistance(visualContent1.getLocallyBinaryPatternsOnGS(), visualContent2.getLocallyBinaryPatternsOnGS()));
-        double cm3x3Similarity = 1.0 / (1 + this.calculateManhattanDistance(visualContent1.getColorMomentsOnHSV3x3(), visualContent2.getColorMomentsOnHSV3x3()));
-        double cn3x3Similarity = 1.0 / (1 + this.calculateManhattanDistance(visualContent1.getColorNamingHistogram3x3(), visualContent2.getColorNamingHistogram3x3()));
-        double glrlm3x3Similarity = 1.0 / (1 + this.calculateManhattanDistance(visualContent1.getGrayLevelRunLengthMatrix3x3(), visualContent2.getGrayLevelRunLengthMatrix3x3()));
-        double lbp3x3Similarity = 1.0 / (1 + this.calculateManhattanDistance(visualContent1.getLocallyBinaryPatternsOnGS3x3(), visualContent2.getLocallyBinaryPatternsOnGS3x3()));
+        double cmSimilarity = 1.0 / (1 + this.calculateDistance(visualContent1.getColorMomentsOnHSV(), visualContent2.getColorMomentsOnHSV()));
+        double cnSimilarity = 1.0 / (1 + this.calculateDistance(visualContent1.getColorNamingHistogram(), visualContent2.getColorNamingHistogram()));
+        double csdSimilarity = 1.0 / (1 + this.calculateDistance(visualContent1.getColorStructureDescriptor(), visualContent2.getColorStructureDescriptor()));
+        double glrlmSimilarity = 1.0 / (1 + this.calculateDistance(visualContent1.getGrayLevelRunLengthMatrix(), visualContent2.getGrayLevelRunLengthMatrix()));
+        double hogSimilarity = 1.0 / (1 + this.calculateDistance(visualContent1.getHistogramOfOrientedGradients(), visualContent2.getHistogramOfOrientedGradients()));
+        double lbpSimilarity = 1.0 / (1 + this.calculateDistance(visualContent1.getLocallyBinaryPatternsOnGS(), visualContent2.getLocallyBinaryPatternsOnGS()));
+        double cm3x3Similarity = 1.0 / (1 + this.calculateDistance(visualContent1.getColorMomentsOnHSV3x3(), visualContent2.getColorMomentsOnHSV3x3()));
+        double cn3x3Similarity = 1.0 / (1 + this.calculateDistance(visualContent1.getColorNamingHistogram3x3(), visualContent2.getColorNamingHistogram3x3()));
+        double glrlm3x3Similarity = 1.0 / (1 + this.calculateDistance(visualContent1.getGrayLevelRunLengthMatrix3x3(), visualContent2.getGrayLevelRunLengthMatrix3x3()));
+        double lbp3x3Similarity = 1.0 / (1 + this.calculateDistance(visualContent1.getLocallyBinaryPatternsOnGS3x3(), visualContent2.getLocallyBinaryPatternsOnGS3x3()));
 
 
         double similarity = CMWeight*cmSimilarity + CNWeight*cnSimilarity + CSDWeight*csdSimilarity
                 + GLRLMWeight*glrlmSimilarity + HOGWeight*hogSimilarity + LBPWeight*lbpSimilarity
                 + CM3x3Weight*cm3x3Similarity + CN3x3Weight*cn3x3Similarity
                 + GLRLM3x3Weight*glrlm3x3Similarity + LBP3x3Weight*lbp3x3Similarity;
-        return Math.min(1.0, similarity);
+        return  similarity;
     }
 
-
-    private double calculateTextualSimilarity_Intersect(TermCollection textualDescriptors01, TermCollection textualDescriptors02) {
-        // get shared terms between the two images (intersect)
-        Set<String> sharedTerms = new HashSet<>(textualDescriptors01.getTerms().keySet());
-        sharedTerms.retainAll(textualDescriptors02.getTerms().keySet());
-
-        // get TF_IDF scores for the shared instances
-        List<Double> tf_idfList01 = new ArrayList<>();
-        List<Double> tf_idfList02 = new ArrayList<>();
-        for (String term : sharedTerms) {
-            tf_idfList01.add(textualDescriptors01.getTerms().get(term).getTF_IDF());
-            tf_idfList02.add(textualDescriptors02.getTerms().get(term).getTF_IDF());
+    /**
+     * Calculates the similarity between two collections of terms through the shared terms
+     * @param termCollectionA collection A
+     * @param termCollectionB collection B
+     * @return similarity of the two collections based on common terms
+     */
+    private double calculateTextualSimilarity(TermCollection termCollectionA, TermCollection termCollectionB) {
+        Set<String> commonTerms = new HashSet<>(termCollectionA.getTerms().keySet());
+        commonTerms.retainAll(termCollectionB.getTerms().keySet());
+        List<Double> list1 = new ArrayList();
+        List<Double> list2 = new ArrayList();
+        for (String term : commonTerms) {
+            list1.add(termCollectionA.getTerms().get(term).getTF_IDF());
+            list2.add(termCollectionB.getTerms().get(term).getTF_IDF());
         }
-        //System.out.println(this.calculateManhattanDistance(tf_idfList01,tf_idfList02));
-        double similarity = (1-1.0 / (1 + this.calculateManhattanDistance(tf_idfList01,tf_idfList02)));
-        return Math.min(1.0, similarity);
-    }
-
-    private double calculateTextualSimilarity_Union(TermCollection textualDescriptors01, TermCollection textualDescriptors02) {
-        // get all terms in the two images (union)
-        Set<String> allTerms = new HashSet<>(textualDescriptors01.getTerms().keySet());
-        allTerms.addAll(textualDescriptors02.getTerms().keySet());
-
-        // get TF_IDF scores for all instances
-        List<Double> tf_idfList01 = new ArrayList<>();
-        List<Double> tf_idfList02 = new ArrayList<>();
-        for (String term : allTerms) {
-            Term term01 = textualDescriptors01.getTerms().get(term);
-            if (term01 != null) {
-                tf_idfList01.add(term01.getTF_IDF());
-            } else {
-                tf_idfList01.add(0.0);
-            }
-
-            Term term02 = textualDescriptors02.getTerms().get(term);
-            if (term02 != null) {
-                tf_idfList02.add(term02.getTF_IDF());
-            } else {
-                tf_idfList02.add(0.0);
-            }
-        }
-
-        double similarity = this.calculateCosineSimilarity(tf_idfList01, tf_idfList02);
-
-        return Math.min(1.0, similarity);
-    }
-
-
-    public double calculateSimilarityForImages(Image image01, Image image02) {
-        double positionSimilarity = this.calculateGPSPositionSimilarity(image01.getLatitude(),image02.getLatitude(),image01.getLongitude(), image02.getLongitude());
-        double rankSimilarity = 1.0 / (double) (1 + Math.abs(image02.getRank() - image01.getRank()));
-        double relevanceSimilarity = 1.0 / (double) (1 + Math.abs(image02.getRelevanceScore() - image01.getRelevanceScore()));
-        double visualSimilarity = this.calculateVisualSimilarity(image01.getVisualContent(), image02.getVisualContent());
-        double textualSimilarity = this.calculateTextualSimilarity_Union(image01.getTextualDescriptors(), image02.getTextualDescriptors());
-
-        double similarity = (ImageGPSWeight * positionSimilarity) + ImageRankWeight *rankSimilarity + ImageRelevanceWeight *relevanceSimilarity +
-                ImageVisualSimilarityWeight *visualSimilarity + ImageTextualSimilarityWeight *textualSimilarity;
-        return Math.min(1.0, similarity);
-    }
-
-    public double calculateSimilarityForImages(Image image, WikipediaImg wikipediaImg) {
-        return this.calculateVisualSimilarity(image.getVisualContent(), wikipediaImg.getVisualContent());
-    }
-
-    public double calculateSimilarityForWikiImages(Location location, Image image) {
-        double visualSimilarity = 0.0;
-        for (Map.Entry<String, WikipediaImg> imageEntry : location.getWikipediaImages().entrySet()) {
-            double tempSimilarity = this.calculateSimilarityForImages(image, imageEntry.getValue());
-            if (tempSimilarity > visualSimilarity) {
-                visualSimilarity = tempSimilarity;
-            }
-        }
-
-
-        double nameTitleSimilarity = this.calculateWordOverlapSimilarity(location.getName(), image.getTitle());
-        double nameTagsSimilarity = this.calculateWordOverlapSimilarity(location.getName(), image.getTags());
-        double nameSimilarity = (nameTitleSimilarity > nameTagsSimilarity) ? nameTitleSimilarity : nameTagsSimilarity;
-
-        double positionSimilarity = this.calculateGPSPositionSimilarity(location.getLatitude(),image.getLatitude(),location.getLongitude(), image.getLongitude());
-
-        double rankSimilarity = 1.0/image.getRank();
-
-        double imagePropertiesSimilarity = this.calculateImagePropertiesScore(image);
-        double textualSimilarity = this.calculateTextualSimilarity_Intersect(location.getTermCollection(), image.getTextualDescriptors());
-        double similarity = LocationNameWeight*nameSimilarity + LocationGPSWeight * positionSimilarity + LocationRankWeight*rankSimilarity
-                +LocationPropertiesWeight*imagePropertiesSimilarity + LocationVisualSimilarityWeight *visualSimilarity
-                + LocationTextualSimilarityWeight *textualSimilarity;
-        return Math.min(1.0, similarity);
-    }
-
-    public static double calculateCosineSimilarity(List<Double> vector1, List<Double> vector2) {
-        double sumAB = 0;
-        double sumA = 0;
-        double sumB = 0;
-        for (int i = 0; i < vector1.size(); i++) {
-            sumAB = sumAB + vector1.get(i) * vector2.get(i);
-            sumA = sumA + vector1.get(i)*vector1.get(i);
-            sumB = sumB + vector2.get(i)*vector2.get(i);
-        }
-        double similarity = sumAB / (Math.sqrt(sumA) * Math.sqrt(sumB));
+        double similarity = (1-1.0 / (1 + this.calculateDistance(list1,list2)));
         return similarity;
     }
-    public static double calculateManhattanDistance(List<Double> vector01, List<Double> vector02) {
-        double distance = 0;
 
-        //if (vector01.size() == vector02.size()) {
-            for (int i = 0; i < vector01.size(); i++) {
-                distance += Math.abs(vector02.get(i) - vector01.get(i));
+    /**
+     * Calculates the relevance of a image for a location
+     * @param location location for which the image relevance should be calculated
+     * @param image image for which the relevance should be calculated
+     * @return relevance score
+     */
+    public double calculateSimilarityForLocation(Location location, Image image) {
+        double visualSimilarity = 0.0;
+        //Loop through the wikipedia images of the location and calculate the visual similarity
+        for (Map.Entry<String, WikipediaImg> imageEntry : location.getWikipediaImages().entrySet()) {
+            double sim = this.calculateVisualSimilarity(image.getVisualContent(), imageEntry.getValue().getVisualContent());
+            //Store the similarity of the most similar wikipedia image
+            if (sim > visualSimilarity) {
+                visualSimilarity = sim;
             }
-        /*} else {
-            distance = Double.MAX_VALUE;
-        }*/
+        }
+        //Get similarity between GPS position of location and image
+        double positionSimilarity = this.calculateGPSPositionSimilarity(location.getLatitude(),image.getLatitude(),location.getLongitude(), image.getLongitude());
+        //Get rank score of image
+        double rankScore = 1.0/image.getRank();
+        //Get image property score
+        double imagePropertiesScore = this.calculateImagePropertiesScore(image);
+        //Get textual similarity between the location text and the image text
+        double textualSimilarity = this.calculateTextualSimilarity(location.getTermCollection(), image.getTermCollection());
+        double relevanceScore = LocationGPSWeight * positionSimilarity + LocationRankWeight*rankScore
+                +LocationPropertiesWeight*imagePropertiesScore + LocationVisualSimilarityWeight *visualSimilarity
+                + LocationTextualSimilarityWeight *textualSimilarity;
+        return relevanceScore;
+    }
 
+    /**
+     * Calculates the similarity between two images for the calculation of diverse images
+     * @param image1 first image
+     * @param image2 second image
+     * @return similarity between images
+     */
+    public double calculateSimilarityForImages(Image image1, Image image2) {
+        //Similarity of GPS position
+        double positionSimilarity = this.calculateGPSPositionSimilarity(image1.getLatitude(),image2.getLatitude(),image1.getLongitude(), image2.getLongitude());
+        //Similarity of relevance score
+        double relevanceSimilarity = 1.0 / (double) (1 + Math.abs(image2.getRelevanceScore() - image1.getRelevanceScore()));
+        //visual similarity
+        double visualSimilarity = this.calculateVisualSimilarity(image1.getVisualContent(), image2.getVisualContent());
+        //textual similarity of the two images
+        double textualSimilarity = this.calculateTextualSimilarity(image1.getTermCollection(), image2.getTermCollection());
+        double similarity = (ImageGPSWeight * positionSimilarity) + ImageRelevanceWeight *relevanceSimilarity +
+                ImageVisualSimilarityWeight *visualSimilarity + ImageTextualSimilarityWeight *textualSimilarity;
+        return similarity;
+    }
+
+    /**
+     * Calculates the distance of two vectors
+     * @param vector1
+     * @param vector2
+     * @return distance of vectors
+     */
+    public static double calculateDistance(List<Double> vector1, List<Double> vector2) {
+        double distance = 0;
+            for (int i = 0; i < vector1.size(); i++) {
+                distance += Math.abs(vector2.get(i) - vector1.get(i));
+            }
         return distance;
     }
-    public static double calculateWordOverlapSimilarity(String textA, String textB) {
-        String[] tokensArray01 = textA.split("\\W+");
-        String[] tokensArray02 = textB.split("\\W+");
 
-        Set<String> tokensSet01 = new HashSet<>(Arrays.asList(tokensArray01));
-        Set<String> tokensSet02 = new HashSet<>(Arrays.asList(tokensArray02));
-        Set<String> tokensSet = new HashSet<>();
-        tokensSet.addAll(tokensSet01);
-        tokensSet.addAll(tokensSet02);
-
-        int commonTokens = (tokensSet01.size() + tokensSet02.size()) - tokensSet.size();
-        double similarity = (double) commonTokens / (double) Math.min(tokensSet01.size(), tokensSet02.size());
-        return similarity;
-    }
+    /**
+     * Sets the weights for the different features which are retrieved from the properties file
+     */
     public void setWeights () {
         ImageGPSWeight = Double.parseDouble(PropConfig.accessPropertyFile("ImageGPSWeight"));
-        ImageRankWeight = Double.parseDouble(PropConfig.accessPropertyFile("ImageRankWeight"));
         ImageRelevanceWeight = Double.parseDouble(PropConfig.accessPropertyFile("ImageRelevanceWeight"));
         ImageVisualSimilarityWeight = Double.parseDouble(PropConfig.accessPropertyFile("ImageVisualSimilarityWeight"));
         ImageTextualSimilarityWeight = Double.parseDouble(PropConfig.accessPropertyFile("ImageTextualSimilarityWeight"));
 
-        double sum = ImageGPSWeight + ImageRankWeight + ImageRelevanceWeight + ImageVisualSimilarityWeight + ImageTextualSimilarityWeight;
+        double sum = ImageGPSWeight + ImageRelevanceWeight + ImageVisualSimilarityWeight + ImageTextualSimilarityWeight;
 
         if (sum == 0) {
             sum = 1;
         }
 
         ImageGPSWeight = ImageGPSWeight / sum;
-        ImageRankWeight = ImageRankWeight / sum;
         ImageRelevanceWeight = ImageRelevanceWeight / sum;
         ImageVisualSimilarityWeight = ImageVisualSimilarityWeight / sum;
         ImageTextualSimilarityWeight = ImageTextualSimilarityWeight / sum;
 
 
-        LocationNameWeight = Double.parseDouble(PropConfig.accessPropertyFile("LocationNameWeight"));
         LocationGPSWeight = Double.parseDouble(PropConfig.accessPropertyFile("LocationGPSWeight"));
         LocationRankWeight = Double.parseDouble(PropConfig.accessPropertyFile("LocationRankWeight"));
         LocationPropertiesWeight = Double.parseDouble(PropConfig.accessPropertyFile("LocationPropertiesWeight"));
         LocationVisualSimilarityWeight = Double.parseDouble(PropConfig.accessPropertyFile("LocationVisualSimilarityWeight"));
         LocationTextualSimilarityWeight = Double.parseDouble(PropConfig.accessPropertyFile("LocationTextualSimilarityWeight"));
-        sum = LocationNameWeight + LocationGPSWeight + LocationRankWeight + LocationPropertiesWeight
+        sum = LocationGPSWeight + LocationRankWeight + LocationPropertiesWeight
                 + LocationVisualSimilarityWeight + LocationTextualSimilarityWeight;
 
         if (sum == 0) {
             sum = 1;
         }
-
-        LocationNameWeight = LocationNameWeight / sum;
         LocationGPSWeight = LocationGPSWeight / sum;
         LocationRankWeight = LocationRankWeight / sum;
         LocationPropertiesWeight = LocationPropertiesWeight / sum;

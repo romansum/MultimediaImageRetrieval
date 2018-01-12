@@ -26,13 +26,13 @@ public class Input {
 
     public Input() {
         this.locations = new HashMap<>();
-        this.locationsTextualDescriptors = new HashMap();
-        this.imagesTextualDescriptors = new HashMap();
+        this.locationsTermCollection = new HashMap();
+        this.imagesTermCollection = new HashMap();
     }
 
     private Map<String, Location> locations;
-    private Map<String, TermCollection> locationsTextualDescriptors;
-    private Map<String, TermCollection> imagesTextualDescriptors;
+    private Map<String, TermCollection> locationsTermCollection;
+    private Map<String, TermCollection> imagesTermCollection;
 
     public Map<String, Location> getLocations() {
         return locations;
@@ -52,13 +52,13 @@ public class Input {
                 if (node.getNodeType() == Node.ELEMENT_NODE) {
                     Element element = (Element) node;
                     Location location = new Location();
-                        location.setNumber(Integer.parseInt(element.getElementsByTagName("number").item(0).getTextContent()));
-                        location.setTitle(element.getElementsByTagName("title").item(0).getTextContent());
-                        location.setLatitude(Double.parseDouble(element.getElementsByTagName("latitude").item(0).getTextContent()));
-                        location.setLongitude(Double.parseDouble(element.getElementsByTagName("longitude").item(0).getTextContent()));
-                        location.setWikiUrl(element.getElementsByTagName("wiki").item(0).getTextContent());
-                    TermCollection textualDescriptors = this.locationsTextualDescriptors.get(location.getTitle());
-                        location.setTermCollection(textualDescriptors);
+                    location.setNumber(Integer.parseInt(element.getElementsByTagName("number").item(0).getTextContent()));
+                    location.setTitle(element.getElementsByTagName("title").item(0).getTextContent());
+                    location.setLatitude(Double.parseDouble(element.getElementsByTagName("latitude").item(0).getTextContent()));
+                    location.setLongitude(Double.parseDouble(element.getElementsByTagName("longitude").item(0).getTextContent()));
+                    location.setWikiUrl(element.getElementsByTagName("wiki").item(0).getTextContent());
+                    TermCollection textualDescriptors = this.locationsTermCollection.get(location.getTitle());
+                    location.setTermCollection(textualDescriptors);
                     if(readGroundTruth.equals("true")) {
                         location.setClusters(loadGroundTruthClusters(PropConfig.accessPropertyFile("BasePath") + "gt/dGT/" + location.getTitle() + " dclusterGT.txt"));
                     }
@@ -70,8 +70,8 @@ public class Input {
         }
     }
 
-    private void readLocationTextualFeatures() {
-        String filePath = PropConfig.accessPropertyFile("BasePath")+PropConfig.accessPropertyFile("LocationTextualDescriptorPath");
+    private void readTextualFeatures(String path, boolean location) {
+        String filePath = path;
         File file = new File(filePath);
 
         try {
@@ -94,35 +94,11 @@ public class Input {
                         Logger.getLogger(Input.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
-                this.locationsTextualDescriptors.put(locationTitle, textualDescriptors);
-            }
-        } catch (IOException | NumberFormatException ex) {
-            Logger.getLogger(Input.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
-    private void readImageTextualFeatures() {
-        String filePath = PropConfig.accessPropertyFile("BasePath")+PropConfig.accessPropertyFile("ImageTextualDescriptorPath");
-        File file = new File(filePath);
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader(file));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String[] values = line.split(" ");
-                String imageId = values[0];
-                TermCollection textualDescriptors = new TermCollection();
-                for (int i = 1; i < values.length; i += 4) {
-                    try {
-                        String term = values[i].replace("\"", "");
-                        int tf = Integer.parseInt(values[i + 1]);
-                        int df = Integer.parseInt(values[i + 2]);
-                        double tf_idf = Double.parseDouble(values[i + 3]);
-                        textualDescriptors.getTerms().put(term, new Term(term,tf_idf));
-                    } catch (Exception ex) {
-                        Logger.getLogger(Input.class.getName()).log(Level.SEVERE, null, ex);
-                    }
+                if(location) {
+                    this.locationsTermCollection.put(locationTitle, textualDescriptors);
+                } else {
+                    this.imagesTermCollection.put(locationTitle, textualDescriptors);
                 }
-                this.imagesTextualDescriptors.put(imageId, textualDescriptors);
             }
         } catch (IOException | NumberFormatException ex) {
             Logger.getLogger(Input.class.getName()).log(Level.SEVERE, null, ex);
@@ -159,19 +135,18 @@ public class Input {
                                 Element element = (Element) node;
 
                                 Image image = new Image();
-                                image.setLocation(location);
+                                image.setId(element.getAttribute("id"));
+                                image.setTitle(element.getAttribute("title"));
+                                image.setDescription(element.getAttribute("description"));
+                                image.setTags(element.getAttribute("tags"));
+                                image.setRank(Integer.parseInt(element.getAttribute("rank")));
+                                image.setNumberOfComments(Integer.parseInt(element.getAttribute("nbComments")));
+                                image.setNumberOfViews(Integer.parseInt(element.getAttribute("views")));
+                                image.setLatitude(Double.parseDouble(element.getAttribute("latitude")));
+                                image.setLongitude(Double.parseDouble(element.getAttribute("longitude")));
 
-                                    image.setId(element.getAttribute("id"));
-                                    image.setTitle(element.getAttribute("title"));
-                                    image.setDescription(element.getAttribute("description"));
-                                    image.setTags(element.getAttribute("tags"));
-                                    image.setRank(Integer.parseInt(element.getAttribute("rank")));
-                                    image.setNumberOfComments(Integer.parseInt(element.getAttribute("nbComments")));
-                                    image.setNumberOfViews(Integer.parseInt(element.getAttribute("views")));
-                                    image.setLatitude(Double.parseDouble(element.getAttribute("latitude")));
-                                    image.setLongitude(Double.parseDouble(element.getAttribute("longitude")));
-                                TermCollection textualDescriptors = this.imagesTextualDescriptors.get(image.getId());
-                                    image.setTextualDescriptors(textualDescriptors);
+                                TermCollection textualDescriptors = this.imagesTermCollection.get(image.getId());
+                                image.setTermCollection(textualDescriptors);
                                 if(readGroundTruths.equals("true")) {
                                     if (groundTruthRelevance.get(image.getId()) != null)
                                         image.setRelevant_GT(groundTruthRelevance.get(image.getId()) == 1);
@@ -354,10 +329,9 @@ public class Input {
     }
 
     public void read(String readGroundTruths) {
-        this.readLocationTextualFeatures();
+        this.readTextualFeatures(PropConfig.accessPropertyFile("BasePath")+PropConfig.accessPropertyFile("LocationTextualDescriptorPath"),true);
         this.readLocations(readGroundTruths);
-        this.readImageTextualFeatures();
-        this.readImageTextualFeatures();
+        this.readTextualFeatures(PropConfig.accessPropertyFile("BasePath")+PropConfig.accessPropertyFile("ImageTextualDescriptorPath"),false);
         this.readImages(readGroundTruths);
         this.readImageVisualDescriptors();
         this.readWikiVisualDescriptors();
