@@ -19,7 +19,7 @@ public class VisualContent {
         this.locallyBinaryPatternsOnGS = new ArrayList();
         this.locallyBinaryPatternsOnGS3x3 = new ArrayList();
     }
-
+    //All different existing visual features for an image
     private List<Double> colorMomentsOnHSV;
     private List<Double> colorMomentsOnHSV3x3;
     private List<Double> colorNamingHistogram;
@@ -31,6 +31,7 @@ public class VisualContent {
     private List<Double> locallyBinaryPatternsOnGS;
     private List<Double> locallyBinaryPatternsOnGS3x3;
 
+    //Getter and setter methods for the different visual features
     public List<Double> getColorMomentsOnHSV() {
         return colorMomentsOnHSV;
     }

@@ -11,17 +11,18 @@ import java.util.Properties;
  */
 public class PropConfig {
     private static InputStream inputStream;
-    public static String accessPropertyFile(String property) {
 
+    /**
+     * Method which retrieves a specific property from the Config.properties file
+     * @param property name of the property which should be retrieved
+     * @return value of the property
+     */
+    public static String accessPropertyFile(String property) {
         String retrievedProp = "";
         // Try to access the Properties-File
         try {
             Properties prop = new Properties();
             String propFileName = "Config.properties";
-
-            //inputStream = getClass().getClassLoader().getResourceAsStream(
-            //        propFileName);
-            //inputStream = PropConfig.class.getClassLoader().getResourceAsStream(propFileName);
             inputStream = Thread.currentThread()
                     .getContextClassLoader().getResourceAsStream("Config.properties");
 
@@ -35,7 +36,6 @@ public class PropConfig {
             }
             retrievedProp = MessageFormat.format((String) prop.get(property),
                     "A");
-            // retrievedProp = retrievedProp + " ";
         } catch (Exception e) {
             System.out.println("Exception: " + e);
         } finally {

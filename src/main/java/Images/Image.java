@@ -16,7 +16,7 @@ public class Image {
         this.termCollection = new TermCollection();
         this.visualContent = new VisualContent();
     }
-
+    //All the attributes of an image
     private String id;
     private String title;
     private String description;
@@ -33,7 +33,7 @@ public class Image {
 
     private double relevanceScore;
     private double diversityScore;
-
+    //Getter and Setter methods for the attributes
     public String getId() {
         return id;
     }

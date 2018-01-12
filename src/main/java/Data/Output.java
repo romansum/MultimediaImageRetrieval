@@ -13,8 +13,14 @@ import Images.Location;
  * Created by rsume on 05.01.2018.
  */
 public class Output {
-
-    public void writeOutput(File file, Map<String, Location> locations, int numberOfImagesToPrint, String runId, String readGroundTruths) {
+    /**
+     * Method which constructs the result file
+     * @param file Output file
+     * @param locations list of locations for which the result file should be created
+     * @param numberOfImagesToPrint number of top images which should be stored for every location
+     * @param readGroundTruths if true the precision, cluster recall and harmonic mean are calculated
+     */
+    public void writeOutput(File file, Map<String, Location> locations, int numberOfImagesToPrint, String readGroundTruths) {
         try {
             if (!file.exists()) {
                 file.createNewFile();
@@ -29,15 +35,18 @@ public class Output {
             double precision50 = 0;
             double clusterRecall10 = 0;
             double clusterRecall50 = 0;
+            //loop through all locations
             for (int i = 0; i < orderedLocations.size(); i++) {
                 Location location = orderedLocations.get(i);
                 List<Image> orderedImages = location.getTopImages(numberOfImagesToPrint);
+                //calculate precision and cluster recall if necessary
                 if(readGroundTruths.equals("true")) {
                     precision10 = precision10 + getPrecisionAt(10, orderedImages);
                     precision50 = precision10 + getPrecisionAt(50, orderedImages);
                     clusterRecall10 = clusterRecall10 + getClusterRecallAt(10, location.getClusters(), orderedImages);
                     clusterRecall50 = clusterRecall50 + getClusterRecallAt(50, location.getClusters(), orderedImages);
                 }
+                //loop through every image of the top images and save it to the result file
                 for (int j = 0; j < orderedImages.size(); j++) {
                     Image image = orderedImages.get(j);
                     writer.println(location.getNumber()
@@ -50,7 +59,7 @@ public class Output {
                             + " "
                             + image.getDiversityScore()
                             + " "
-                            + runId);
+                            + "RUN1");
                 }
             }
             if(readGroundTruths.equals("true")) {
@@ -78,6 +87,12 @@ public class Output {
         }
     }
 
+    /**
+     * Calculates the precision of the retrieved images
+     * @param k number of top results which should be taken into account
+     * @param images list of images
+     * @return precision
+     */
     public double getPrecisionAt(int k, List<Image> images) {
         double trueCount = 0, count = 0;
         if(k >= images.size())
@@ -92,6 +107,13 @@ public class Output {
         return trueCount / k;
     }
 
+    /**
+     * Method which calculates the number of different cluster which occur in the top images compared to all the clusters in the ground truth
+     * @param k number of top results which should be taken into account
+     * @param clusters List of existing clusters in the ground truth
+     * @param images list of images
+     * @return cluster recall
+     */
     public double getClusterRecallAt(int k, List<Integer> clusters, List<Image> images) {
         int count = 0;
         TreeSet<Integer> recalledClusters = new TreeSet<Integer>();
@@ -106,6 +128,11 @@ public class Output {
         return (double)recalledClusters.size() / k;
     }
 
+    /**
+     * Calculates the harmonic mean between the precision and the cluster recall at a specific number of images
+     * @param values list of the precision and cluster recall
+     * @return harmonic mean
+     */
     public double harmonicMean (List<Double> values) {
         double Harmonic_Mean;
         double divisor = 0;

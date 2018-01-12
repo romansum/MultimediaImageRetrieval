@@ -11,7 +11,7 @@ public class Location {
         this.wikipediaImages = new HashMap<>();
         this.TermCollection = new TermCollection();
     }
-
+    //Attributes of a location
     private int number;
     private String title;
     private String wikiUrl;
@@ -22,7 +22,7 @@ public class Location {
     private List<Integer> clusters;
 
     private TermCollection TermCollection;
-
+    //Getter and Setter methods for the attributes
     public int getNumber() {
         return number;
     }
@@ -95,6 +95,11 @@ public class Location {
         return this.title.replace("_", " ");
     }
 
+    /**
+     * Method which returns the best images based on the diversity score and the relevance score
+     * @param count number of top images which should be retrieved
+     * @return list of top images
+     */
     public List<Image> getTopImages(int count) {
         List<Image> orderedImages = new ArrayList<>(this.getImages().values());
         orderedImages.sort((image1, image2) -> {

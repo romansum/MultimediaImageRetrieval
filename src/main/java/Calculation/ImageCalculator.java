@@ -44,7 +44,7 @@ public class ImageCalculator {
         Output writer = new Output();
         //Write the resulting images in the result file
         File outputFile = new File(PropConfig.accessPropertyFile("outputFile"));
-        writer.writeOutput(outputFile, reader.getLocations(), Integer.parseInt(PropConfig.accessPropertyFile("OutputImages")), "TestRun",readGroundTruths);
+        writer.writeOutput(outputFile, reader.getLocations(), Integer.parseInt(PropConfig.accessPropertyFile("OutputImages")),readGroundTruths);
         System.out.println("Application finished successfully.");
     }
 

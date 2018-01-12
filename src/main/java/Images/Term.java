@@ -8,6 +8,7 @@ public class Term {
         this.value = value;
         this.TF_IDF = TF_IDF;
     }
+    //Terms which occur in a location or image and their tf-idf
     private String value;
     private double TF_IDF;
     public double getTF_IDF() {

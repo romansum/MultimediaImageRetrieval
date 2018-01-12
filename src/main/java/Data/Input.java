@@ -29,7 +29,7 @@ public class Input {
         this.locationsTermCollection = new HashMap();
         this.imagesTermCollection = new HashMap();
     }
-
+    // List of existion locations
     private Map<String, Location> locations;
     private Map<String, TermCollection> locationsTermCollection;
     private Map<String, TermCollection> imagesTermCollection;
@@ -38,6 +38,10 @@ public class Input {
         return locations;
     }
 
+    /**
+     * reads the locations from the input data and all the attributes of a location
+     * @param readGroundTruth if true it reads also the ground truth for locations
+     */
     private void readLocations(String readGroundTruth) {
         String filePath = PropConfig.accessPropertyFile("BasePath")+PropConfig.accessPropertyFile("LocationPath");
         File file = new File(filePath);
@@ -47,6 +51,7 @@ public class Input {
 
             Document document = dBuilder.parse(file);
             NodeList nodeList = document.getElementsByTagName("topic");
+            //loop through all locations
             for (int i = 0; i < nodeList.getLength(); i++) {
                 Node node = nodeList.item(i);
                 if (node.getNodeType() == Node.ELEMENT_NODE) {
@@ -70,6 +75,11 @@ public class Input {
         }
     }
 
+    /**
+     * Reads all existing terms for a location or a image
+     * @param path Path to the file where the information is stored
+     * @param location if true the terms are read for a location otherwise for an image
+     */
     private void readTextualFeatures(String path, boolean location) {
         String filePath = path;
         File file = new File(filePath);
@@ -105,6 +115,10 @@ public class Input {
         }
     }
 
+    /**
+     * Reads the images and the attributes of the images
+     * @param readGroundTruths if true the ground truths for the images are also read
+     */
     private void readImages(String readGroundTruths) {
         String directoryPath = PropConfig.accessPropertyFile("BasePath")+PropConfig.accessPropertyFile("XMLPath");
         File directory = new File(directoryPath);
@@ -118,8 +132,8 @@ public class Input {
                 Hashtable<String, Integer> groundTruthRelevance=null;
                 Hashtable<String, Integer> groundTruthCluster=null;
                 if(readGroundTruths.equals("true")) {
-                    groundTruthRelevance = loadGroundTruthAllocation(PropConfig.accessPropertyFile("BasePath") + "gt/rGT/" + location.getTitle() + " rGT.txt");
-                    groundTruthCluster = loadGroundTruthAllocation(PropConfig.accessPropertyFile("BasePath") + "gt/dGT/" + location.getTitle() + " dGT.txt");
+                    groundTruthRelevance = loadGroundTruths(PropConfig.accessPropertyFile("BasePath") + "gt/rGT/" + location.getTitle() + " rGT.txt");
+                    groundTruthCluster = loadGroundTruths(PropConfig.accessPropertyFile("BasePath") + "gt/dGT/" + location.getTitle() + " dGT.txt");
                 }
                 if (location != null) {
                     try {
@@ -165,6 +179,9 @@ public class Input {
         }
     }
 
+    /**
+     * Reads the visual descriptors for an image from the input files
+     */
     private void readImageVisualDescriptors() {
         String directoryPath = PropConfig.accessPropertyFile("BasePath")+PropConfig.accessPropertyFile("VisualDescriptorsPath");
         File directory = new File(directoryPath);
@@ -200,6 +217,9 @@ public class Input {
         }
     }
 
+    /**
+     * Reads the visual descriptors for a wikipedia image from the input files
+     */
     private void readWikiVisualDescriptors() {
         String directoryPath = PropConfig.accessPropertyFile("BasePath")+PropConfig.accessPropertyFile("WikiVisualDescriptorsPath");
         File directory = new File(directoryPath);
@@ -242,17 +262,20 @@ public class Input {
             }
         }
     }
-    public static Hashtable<String, Integer> loadGroundTruthAllocation(String path) {
+
+    /**
+     * Reads the ground truths relevances and the cluster membership, is used to calculate the precision and cluster recall for the devset
+     * @param path Path to the ground truth
+     * @return hashtable with the ground truth relevance
+     */
+    public static Hashtable<String, Integer> loadGroundTruths(String path) {
         Hashtable<String, Integer> groundtruth = new Hashtable<String, Integer>();
         String[] parts;
-        int iLine = 0;
 
         File file = new File(path);
         try (BufferedReader br = new BufferedReader(new FileReader(file))) {
             String line;
             while ((line = br.readLine()) != null) {
-
-                iLine++;
                 parts = line.split(",");
                 if(parts.length != 2)
                     System.out.println("Error");
@@ -265,6 +288,11 @@ public class Input {
         return groundtruth;
     }
 
+    /**
+     * Reads all existing clusters of the ground truth, is used to calculate the cluster recall for the devset
+     * @param path Path to the ground truth
+     * @return list with the existing clusters in the ground truth
+     */
     public static List<Integer> loadGroundTruthClusters(String path) {
         List<Integer> clusters = new ArrayList<Integer>();
         String[] parts;
@@ -287,6 +315,12 @@ public class Input {
         return clusters;
     }
 
+    /**
+     * Method which gathers the information for the different visual features
+     * @param visualContent visual content of the actual image
+     * @param VisualDesc code for each visual feature
+     * @param values vectors for each feature
+     */
     public void setVisualDescriptor (VisualContent visualContent, String VisualDesc, String[] values) {
             List<Double> descriptorValues = new ArrayList<>();
             for (int i = 0; i < values.length; i++) {
@@ -328,6 +362,10 @@ public class Input {
             }
     }
 
+    /**
+     * Method which starts the input of the data
+     * @param readGroundTruths if true the ground truths are also read
+     */
     public void read(String readGroundTruths) {
         this.readTextualFeatures(PropConfig.accessPropertyFile("BasePath")+PropConfig.accessPropertyFile("LocationTextualDescriptorPath"),true);
         this.readLocations(readGroundTruths);

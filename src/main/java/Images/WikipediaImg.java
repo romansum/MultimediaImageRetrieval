@@ -7,13 +7,11 @@ public class WikipediaImg {
     public WikipediaImg() {
         this.visualContent = new VisualContent();
     }
-
+    //attributes of a wikipedia image
     private String id;
-
     private VisualContent visualContent;
-
     private Location location;
-
+    //Getter and setter methods
     public String getId() {
         return id;
     }
